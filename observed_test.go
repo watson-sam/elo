@@ -1,8 +1,9 @@
 package elo_test
 
 import (
-	"elo"
 	"testing"
+
+	"github.com/watson-sam/elo"
 )
 
 func TestObsWinLooseDraw(t *testing.T) {

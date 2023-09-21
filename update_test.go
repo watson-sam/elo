@@ -1,8 +1,9 @@
 package elo_test
 
 import (
-	"elo"
 	"testing"
+
+	"github.com/watson-sam/elo"
 )
 
 var ERROR_MESSAGE string = "Expected %f, but got %f"

@@ -1,9 +1,10 @@
 package elo_test
 
 import (
-	"elo"
 	"math"
 	"testing"
+
+	"github.com/watson-sam/elo"
 )
 
 func TestExpProbability(t *testing.T) {
