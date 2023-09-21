@@ -24,15 +24,16 @@ import (
 
 func main() {
 	// Create Elo settings with custom parameters
-	settings := elo.New(
-		elo.WithKFactor(32), // Specify the K-factor for rating adjustments
-		elo.WithExpectedFunction(elo.ExpProbability), // Use a custom expected function (optional)
-		elo.WithObservedFunction(elo.ObsWinLooseDraw), // Use a custom observed function (optional)
-	)
+    settings := elo.New(
+        elo.WithKFactor(32),
+        elo.WithInitRating(10),
+        elo.WithExpectedFunct(elo.ExpProbability), // Use a custom expected function (optional)
+		elo.WithObservedFunct(elo.ObsWinLooseDraw), // Use a custom observed function (optional)
+    )
 
 	// Initial ratings for two players
-	playerA := settings.InitRating
-	playerB := settings.InitRating
+	playerA := settings.NewRating()
+	playerB := settings.NewRating()
 
 	// Simulate a match result
 	scoreA := 1.0 // Adjust this based on the actual match result

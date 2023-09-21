@@ -40,25 +40,25 @@ func ApplyMaxChange(minRating, maxRating, newRating float64) float64 {
 	return newRating
 }
 
-// applyMaxChangePerc applies a maximum percentage change to a new rating value.
+// applymaxChangePerc applies a maximum percentage change to a new rating value.
 // It takes the following parameters:
 // - oldRating (float64): The previous rating value.
 // - newRating (float64): The new rating value to be checked and possibly adjusted.
 // It returns the adjusted rating as a float64 value.
 func (s *Settings) ApplyMaxChangePerc(oldRating float64, newRating float64) float64 {
-	minRating := oldRating * (1 - s.MaxChangePerc)
-	maxRating := oldRating * (1 + s.MaxChangePerc)
+	minRating := oldRating * (1 - s.maxChangePerc)
+	maxRating := oldRating * (1 + s.maxChangePerc)
 	return ApplyMaxChange(minRating, maxRating, newRating)
 }
 
-// applyMaxChangeAbs applies a maximum absolute change to a new rating value.
+// applymaxChangeAbs applies a maximum absolute change to a new rating value.
 // It takes the following parameters:
 // - oldRating (float64): The previous rating value.
 // - newRating (float64): The new rating value to be checked and possibly adjusted.
 // It returns the adjusted rating as a float64 value.
 func (s *Settings) ApplyMaxChangeAbs(oldRating float64, newRating float64) float64 {
-	minRating := oldRating - s.MaxChangeAbs
-	maxRating := oldRating + s.MaxChangeAbs
+	minRating := oldRating - s.maxChangeAbs
+	maxRating := oldRating + s.maxChangeAbs
 	return ApplyMaxChange(minRating, maxRating, newRating)
 }
 
@@ -75,12 +75,25 @@ func (s *Settings) update(rating float64, observed float64, expected float64) fl
 	} else {
 		updateFunc = UpdateExpected
 	}
-	change := updateFunc(observed, expected, s.KFactor)
+	change := updateFunc(observed, expected, s.kFactor)
 	newRating := rating + change
-	if s.MaxChangePerc != 0 {
+	if s.maxChangePerc != 0 {
 		newRating = s.ApplyMaxChangePerc(rating, newRating)
-	} else if s.MaxChangeAbs != 0 {
+	} else if s.maxChangeAbs != 0 {
 		newRating = s.ApplyMaxChangeAbs(rating, newRating)
 	}
 	return newRating
+}
+
+// UpdateRating calculates a new rating based on the provided ratings and scores using the configured functions and settings.
+// It takes the following parameters:
+// - rating (float64): The current rating value.
+// - ratingOpp (float64): The rating of the opposing team or player.
+// - score (float64): The score of the subject team or player.
+// - scoreOpp (float64): The score of the opposing team or player.
+// It returns the updated rating as a float64.
+func (s *Settings) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
+	expected := s.expected(rating, ratingOpp)
+	observed := s.observed(score, scoreOpp)
+	return s.update(rating, observed, expected)
 }

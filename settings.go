@@ -1,42 +1,81 @@
 package elo
 
+const (
+	DefaultInitRating    float64 = 2600
+	DefaultC             float64 = 400
+	DefaultHomeAdvantage float64 = 0
+	DefaultKFactor       float64 = 32
+)
+
 // Settings represents the configuration for the rating system.
 type Settings struct {
-	InitRating    float64   // InitRating is the initial rating value.
-	C             float64   // C is a scaling factor affecting the steepness of the probability curve.
-	HomeAdvantage float64   // HomeAdvantage is the home advantage factor (if any).
-	KFactor       float64   // KFactor is the factor used in rating calculations.
-	MaxChangePerc float64   // MaxChangePerc defines the maximum percentage change allowed for a rating update.
-	MaxChangeAbs  float64   // MaxChangeAbs defines the maximum absolute change allowed for a rating update.
+	initRating    float64   // initRating is the initial rating value.
+	c             float64   // c is a scaling factor affecting the steepness of the probability curve.
+	homeAdvantage float64   // homeAdvantage is the home advantage factor (if any).
+	kFactor       float64   // kFactor is the factor used in rating calculations.
+	maxChangePerc float64   // maxChangePerc defines the maximum percentage change allowed for a rating update.
+	maxChangeAbs  float64   // maxChangeAbs defines the maximum absolute change allowed for a rating update.
 	UpdateFunc    *Update   // UpdateFunc is a user-defined update function, if specified.
 	ObservedFunc  *Observed // ObservedFunc is a user-defined observed function, if specified.
 	ExpectedFunc  *Expected // ExpectedFunc is a user-defined expected function, if specified.
 }
 
-// UpdateRating calculates a new rating based on the provided ratings and scores using the configured functions and settings.
-// It takes the following parameters:
-// - rating (float64): The current rating value.
-// - ratingOpp (float64): The rating of the opposing team or player.
-// - score (float64): The score of the subject team or player.
-// - scoreOpp (float64): The score of the opposing team or player.
-// It returns the updated rating as a float64.
-func (s *Settings) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
-	expected := s.expected(rating, ratingOpp)
-	observed := s.observed(score, scoreOpp)
-	return s.update(rating, observed, expected)
-}
+// Option is a function type that defines a configuration option for customizing the Settings.
+type Option func(c *Settings)
 
-// Setup returns a default Settings configuration for the rating system.
-func Setup() Settings {
-	return Settings{
-		InitRating:    2000,
-		KFactor:       10,
-		HomeAdvantage: 0,
+func WithInitRating(initRating float64) Option {
+	return func(s *Settings) {
+		s.initRating = initRating
 	}
 }
 
-// Option is a function type that defines a configuration option for customizing the Settings.
-type Option func(c *Settings)
+func WithC(c float64) Option {
+	return func(s *Settings) {
+		s.c = c
+	}
+}
+
+func WithHomeAdvantage(homeAdvantage float64) Option {
+	return func(s *Settings) {
+		s.homeAdvantage = homeAdvantage
+	}
+}
+
+func WithKFactor(kFactor float64) Option {
+	return func(s *Settings) {
+		s.kFactor = kFactor
+	}
+}
+
+func WithMaxChangePerc(maxChangePerc float64) Option {
+	return func(s *Settings) {
+		s.maxChangePerc = maxChangePerc
+	}
+}
+
+func WithMaxChangeAbs(maxChangeAbs float64) Option {
+	return func(s *Settings) {
+		s.maxChangeAbs = maxChangeAbs
+	}
+}
+
+func WithObservedFunc(observed Observed) Option {
+	return func(s *Settings) {
+		s.ObservedFunc = &observed
+	}
+}
+
+func WithExpectedFunc(expeced Expected) Option {
+	return func(s *Settings) {
+		s.ExpectedFunc = &expeced
+	}
+}
+
+func WithUpdateFunc(update Update) Option {
+	return func(s *Settings) {
+		s.UpdateFunc = &update
+	}
+}
 
 // New creates a new Settings configuration with optional customizations using functional options.
 // It takes one or more Option functions to customize the Settings.
@@ -45,10 +84,12 @@ func New(opts ...Option) Settings {
 	var exp Expected = ExpProbability
 	var up Update = UpdateExpected
 	c := Settings{
-		InitRating:    2600,
-		KFactor:       10,
-		C:             400,
-		HomeAdvantage: 0,
+		initRating:    DefaultInitRating,
+		kFactor:       DefaultKFactor,
+		c:             DefaultC,
+		homeAdvantage: DefaultC,
+		maxChangePerc: 0,
+		maxChangeAbs:  0,
 		ObservedFunc:  &obs,
 		ExpectedFunc:  &exp,
 		UpdateFunc:    &up,
@@ -57,4 +98,8 @@ func New(opts ...Option) Settings {
 		o(&c)
 	}
 	return c
+}
+
+func (s Settings) NewRating() float64 {
+	return s.initRating
 }

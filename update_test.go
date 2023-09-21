@@ -84,10 +84,9 @@ func TestApplyMaxChange(t *testing.T) {
 }
 
 func TestSettingsApplyMaxChangePerc(t *testing.T) {
-	// Create a sample Settings configuration with MaxChangePerc
-	settings := elo.Settings{
-		MaxChangePerc: 0.2,
-	}
+	// Create a sample Settings configuration with maxChangePerc
+
+	settings := elo.New(elo.WithMaxChangePerc(0.2))
 
 	// Test case 1: New rating exceeds the maximum allowed percentage change
 	oldRating := 100.0
@@ -117,11 +116,9 @@ func TestSettingsApplyMaxChangePerc(t *testing.T) {
 	}
 }
 
-func TestSettingsApplyMaxChangeAbs(t *testing.T) {
-	// Create a sample Settings configuration with MaxChangeAbs
-	settings := elo.Settings{
-		MaxChangeAbs: 20.0,
-	}
+func TestSettingsApplymaxChangeAbs(t *testing.T) {
+	// Create a sample Settings configuration with maxChangeAbs
+	settings := elo.New(elo.WithMaxChangeAbs(20))
 
 	// Test case 1: New rating exceeds the maximum allowed absolute change
 	oldRating := 100.0

@@ -40,5 +40,5 @@ func (s *Settings) expected(rating float64, ratingOpp float64) float64 {
 	} else {
 		expected = ExpProbability
 	}
-	return expected(rating, ratingOpp, s.HomeAdvantage, s.C)
+	return expected(rating, ratingOpp, s.homeAdvantage, s.c)
 }
