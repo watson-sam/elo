@@ -40,10 +40,10 @@ func ObsDifference(score float64, scoreOpp float64) float64 {
 // - score (float64): The score of the subject team.
 // - scoreOpp (float64): The score of the opposing team.
 // It returns the observed value as a float64.
-func (s *Settings) observed(score float64, scoreOpp float64) float64 {
+func (m *Match) observed(score float64, scoreOpp float64) float64 {
 	var observed Observed
-	if s.ObservedFunc != nil {
-		observed = *s.ObservedFunc
+	if m.ObservedFunc != nil {
+		observed = *m.ObservedFunc
 	} else {
 		observed = ObsWinLooseDraw
 	}

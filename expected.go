@@ -33,12 +33,12 @@ func ExpDifference(rating float64, ratingOpp float64, homeAdvantage float64, c f
 // - rating (float64): The rating of the subject team.
 // - ratingOpp (float64): The rating of the opposing team.
 // It returns the expected value as a float64.
-func (s *Settings) Expected(rating float64, ratingOpp float64) float64 {
+func (m *Match) Expected(rating float64, ratingOpp float64) float64 {
 	var expected Expected
-	if s.ExpectedFunc != nil {
-		expected = *s.ExpectedFunc
+	if m.ExpectedFunc != nil {
+		expected = *m.ExpectedFunc
 	} else {
 		expected = ExpProbability
 	}
-	return expected(rating, ratingOpp, s.homeAdvantage, s.c)
+	return expected(rating, ratingOpp, m.homeAdvantage, m.c)
 }

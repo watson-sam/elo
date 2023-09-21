@@ -45,9 +45,9 @@ func ApplyMaxChange(minRating, maxRating, newRating float64) float64 {
 // - oldRating (float64): The previous rating value.
 // - newRating (float64): The new rating value to be checked and possibly adjusted.
 // It returns the adjusted rating as a float64 value.
-func (s *Settings) ApplyMaxChangePerc(oldRating float64, newRating float64) float64 {
-	minRating := oldRating * (1 - s.maxChangePerc)
-	maxRating := oldRating * (1 + s.maxChangePerc)
+func (m *Match) ApplyMaxChangePerc(oldRating float64, newRating float64) float64 {
+	minRating := oldRating * (1 - m.maxChangePerc)
+	maxRating := oldRating * (1 + m.maxChangePerc)
 	return ApplyMaxChange(minRating, maxRating, newRating)
 }
 
@@ -56,9 +56,9 @@ func (s *Settings) ApplyMaxChangePerc(oldRating float64, newRating float64) floa
 // - oldRating (float64): The previous rating value.
 // - newRating (float64): The new rating value to be checked and possibly adjusted.
 // It returns the adjusted rating as a float64 value.
-func (s *Settings) ApplyMaxChangeAbs(oldRating float64, newRating float64) float64 {
-	minRating := oldRating - s.maxChangeAbs
-	maxRating := oldRating + s.maxChangeAbs
+func (m *Match) ApplyMaxChangeAbs(oldRating float64, newRating float64) float64 {
+	minRating := oldRating - m.maxChangeAbs
+	maxRating := oldRating + m.maxChangeAbs
 	return ApplyMaxChange(minRating, maxRating, newRating)
 }
 
@@ -68,19 +68,19 @@ func (s *Settings) ApplyMaxChangeAbs(oldRating float64, newRating float64) float
 // - observed (float64): The actual observed value.
 // - expected (float64): The expected value.
 // It returns the adjusted new rating as a float64 value.
-func (s *Settings) update(rating float64, observed float64, expected float64) float64 {
+func (m *Match) update(rating float64, observed float64, expected float64) float64 {
 	var updateFunc Update
-	if s.UpdateFunc != nil {
-		updateFunc = *s.UpdateFunc
+	if m.UpdateFunc != nil {
+		updateFunc = *m.UpdateFunc
 	} else {
 		updateFunc = UpdateExpected
 	}
-	change := updateFunc(observed, expected, s.kFactor)
+	change := updateFunc(observed, expected, m.kFactor)
 	newRating := rating + change
-	if s.maxChangePerc != 0 {
-		newRating = s.ApplyMaxChangePerc(rating, newRating)
-	} else if s.maxChangeAbs != 0 {
-		newRating = s.ApplyMaxChangeAbs(rating, newRating)
+	if m.maxChangePerc != 0 {
+		newRating = m.ApplyMaxChangePerc(rating, newRating)
+	} else if m.maxChangeAbs != 0 {
+		newRating = m.ApplyMaxChangeAbs(rating, newRating)
 	}
 	return newRating
 }
@@ -92,8 +92,8 @@ func (s *Settings) update(rating float64, observed float64, expected float64) fl
 // - score (float64): The score of the subject team or player.
 // - scoreOpp (float64): The score of the opposing team or player.
 // It returns the updated rating as a float64.
-func (s *Settings) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
-	expected := s.Expected(rating, ratingOpp)
-	observed := s.observed(score, scoreOpp)
-	return s.update(rating, observed, expected)
+func (m *Match) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
+	expected := m.Expected(rating, ratingOpp)
+	observed := m.observed(score, scoreOpp)
+	return m.update(rating, observed, expected)
 }
