@@ -103,3 +103,11 @@ func New(opts ...Option) Settings {
 func (s Settings) NewRating() float64 {
 	return s.initRating
 }
+
+func (s Settings) HomeAdvantage() float64 {
+	return s.homeAdvantage
+}
+
+func (s Settings) C() float64 {
+	return s.c
+}
