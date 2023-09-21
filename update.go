@@ -93,7 +93,7 @@ func (s *Settings) update(rating float64, observed float64, expected float64) fl
 // - scoreOpp (float64): The score of the opposing team or player.
 // It returns the updated rating as a float64.
 func (s *Settings) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
-	expected := s.expected(rating, ratingOpp)
+	expected := s.Expected(rating, ratingOpp)
 	observed := s.observed(score, scoreOpp)
 	return s.update(rating, observed, expected)
 }
