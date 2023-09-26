@@ -23,7 +23,7 @@ type Match struct {
 	PtOpp    PlayerTeam
 	Score    float64
 	ScoreOpp float64
-	settings Settings
+	Settings Settings
 	Expected float64
 }
 
@@ -35,10 +35,10 @@ type Match struct {
 // - scoreOpp (float64): The score of the opposing team or player.
 // It returns the updated rating as a float64.
 func (m *Match) UpdateRating() float64 {
-	m.Pt.decay(m.settings.DecayFactor, m.settings.InitRating)
-	m.PtOpp.decay(m.settings.DecayFactor, m.settings.InitRating)
+	m.Pt.decay(m.Settings.DecayFactor, m.Settings.InitRating)
+	m.PtOpp.decay(m.Settings.DecayFactor, m.Settings.InitRating)
 
-	m.Expected = m.settings.Expected(m.Pt.Rating, m.PtOpp.Rating)
-	observed := m.settings.observed(m.Score, m.ScoreOpp)
-	return m.settings.update(m.Pt.Rating, observed, m.Expected)
+	m.Expected = m.Settings.Expected(m.Pt.Rating, m.PtOpp.Rating)
+	observed := m.Settings.observed(m.Score, m.ScoreOpp)
+	return m.Settings.update(m.Pt.Rating, observed, m.Expected)
 }
