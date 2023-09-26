@@ -21,8 +21,8 @@ func (pt *PlayerTeam) decay(decayFactor float64, initRating float64) {
 type Match struct {
 	Pt       PlayerTeam
 	PtOpp    PlayerTeam
-	score    float64
-	scoreOpp float64
+	Score    float64
+	ScoreOpp float64
 	settings Settings
 	Expected float64
 }
@@ -39,6 +39,6 @@ func (m *Match) UpdateRating() float64 {
 	m.PtOpp.decay(m.settings.DecayFactor, m.settings.InitRating)
 
 	m.Expected = m.settings.Expected(m.Pt.Rating, m.PtOpp.Rating)
-	observed := m.settings.observed(m.score, m.scoreOpp)
+	observed := m.settings.observed(m.Score, m.ScoreOpp)
 	return m.settings.update(m.Pt.Rating, observed, m.Expected)
 }
