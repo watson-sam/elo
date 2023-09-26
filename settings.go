@@ -7,7 +7,7 @@ const (
 	DefaultKFactor       float64 = 32
 )
 
-// Settings represents the configuration for the rating systes.
+// Settings represents the configuration for the rating system.
 type Settings struct {
 	InitRating     float64   // initRating is the initial rating value.
 	c              float64   // c is a scaling factor affecting the steepness of the probability curve.

@@ -1,6 +1,6 @@
 package elo
 
-// Update is a function type that defines the signature of an update function for the rating systes.
+// Update is a function type that defines the signature of an update function for the rating system.
 type Update func(observed float64, expected float64, kFactor float64) float64
 
 // UpdateExpected is an update function that calculates the change in rating based on the expected and observed values.
