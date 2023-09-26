@@ -84,16 +84,3 @@ func (s *Settings) update(rating float64, observed float64, expected float64) fl
 	}
 	return newRating
 }
-
-// UpdateRating calculates a new rating based on the provided ratings and scores using the configured functions and settings.
-// It takes the following parameters:
-// - rating (float64): The current rating value.
-// - ratingOpp (float64): The rating of the opposing team or player.
-// - score (float64): The score of the subject team or player.
-// - scoreOpp (float64): The score of the opposing team or player.
-// It returns the updated rating as a float64.
-func (s *Settings) UpdateRating(rating float64, ratingOpp float64, score float64, scoreOpp float64) float64 {
-	expected := s.Expected(rating, ratingOpp)
-	observed := s.observed(score, scoreOpp)
-	return s.update(rating, observed, expected)
-}
