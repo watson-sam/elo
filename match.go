@@ -1,119 +1,44 @@
 package elo
 
-const (
-	DefaultInitRating    float64 = 2600
-	DefaultC             float64 = 400
-	DefaultHomeAdvantage float64 = 0
-	DefaultKFactor       float64 = 32
-)
+type PlayerTeam struct {
+	RatingRaw float64
+	Rating    float64
+}
 
-// Settings represents the configuration for the rating system.
+// decay adjusts the current rating of a team towards the init rating of the system according to a given decayFactor, it is directional and
+// and therefore ratings will only ever be smaller or the same size in magnitude, the movement is controlled by the decay factor whereby
+// it behaves like a weighting between the current rating and inital rating
+// It takes the following parameters:
+// - decayFactor (float64): The deacy factor used to weight current rating vs initial rating.
+// - initRating (float64): The default rating of the subject teams
+func (pt *PlayerTeam) decay(decayFactor float64, initRating float64) {
+	pt.Rating = pt.RatingRaw
+	if pt.RatingRaw > initRating {
+		pt.Rating = (pt.RatingRaw * decayFactor) + (initRating * (1 - decayFactor))
+	}
+}
+
 type Match struct {
-	initRating     float64   // initRating is the initial rating value.
-	c              float64   // c is a scaling factor affecting the steepness of the probability curve.
-	homeAdvantage  float64   // homeAdvantage is the home advantage factor (if any).
-	kFactor        float64   // kFactor is the update factor used in rating calculations.
-	decayFactor    float64   // decayFactor is the factor used to decay rating.
-	decayFactorOpp float64   // decayFactorOpp is the factor used to decay opposition rating.
-	maxChangePerc  float64   // maxChangePerc defines the maximum percentage change allowed for a rating update.
-	maxChangeAbs   float64   // maxChangeAbs defines the maximum absolute change allowed for a rating update.
-	UpdateFunc     *Update   // UpdateFunc is a user-defined update function, if specified.
-	ObservedFunc   *Observed // ObservedFunc is a user-defined observed function, if specified.
-	ExpectedFunc   *Expected // ExpectedFunc is a user-defined expected function, if specified.
+	Pt       PlayerTeam
+	PtOpp    PlayerTeam
+	score    float64
+	scoreOpp float64
+	settings Settings
+	Expected float64
 }
 
-// Option is a function type that defines a configuration option for customizing the Settingm.
-type Option func(m *Match)
+// UpdateRating calculates a new rating based on the provided ratings and scores using the configured functions and settings.
+// It takes the following parameters:
+// - rating (float64): The current rating value.
+// - ratingOpp (float64): The rating of the opposing team or player.
+// - score (float64): The score of the subject team or player.
+// - scoreOpp (float64): The score of the opposing team or player.
+// It returns the updated rating as a float64.
+func (m *Match) UpdateRating() float64 {
+	m.Pt.decay(m.settings.DecayFactor, m.settings.InitRating)
+	m.PtOpp.decay(m.settings.DecayFactor, m.settings.InitRating)
 
-func WithInitRating(initRating float64) Option {
-	return func(m *Match) {
-		m.initRating = initRating
-	}
-}
-
-func WithC(c float64) Option {
-	return func(m *Match) {
-		m.c = c
-	}
-}
-
-func WithHomeAdvantage(homeAdvantage float64) Option {
-	return func(m *Match) {
-		m.homeAdvantage = homeAdvantage
-	}
-}
-
-func WithKFactor(kFactor float64) Option {
-	return func(m *Match) {
-		m.kFactor = kFactor
-	}
-}
-
-func WithDecayFactor(decayFactor float64) Option {
-	return func(m *Match) {
-		m.decayFactor = decayFactor
-	}
-}
-
-func WithDecayFactorOpp(decayFactorOpp float64) Option {
-	return func(m *Match) {
-		m.decayFactorOpp = decayFactorOpp
-	}
-}
-
-func WithMaxChangePerc(maxChangePerc float64) Option {
-	return func(m *Match) {
-		m.maxChangePerc = maxChangePerc
-	}
-}
-
-func WithMaxChangeAbs(maxChangeAbs float64) Option {
-	return func(m *Match) {
-		m.maxChangeAbs = maxChangeAbs
-	}
-}
-
-func WithObservedFunc(observed Observed) Option {
-	return func(m *Match) {
-		m.ObservedFunc = &observed
-	}
-}
-
-func WithExpectedFunc(expeced Expected) Option {
-	return func(m *Match) {
-		m.ExpectedFunc = &expeced
-	}
-}
-
-func WithUpdateFunc(update Update) Option {
-	return func(m *Match) {
-		m.UpdateFunc = &update
-	}
-}
-
-// New creates a new Settings configuration with optional customizations using functional optionm.
-// It takes one or more Option functions to customize the Settingm.
-func New(opts ...Option) Match {
-	var obs Observed = ObsWinLooseDraw
-	var exp Expected = ExpProbability
-	var up Update = UpdateExpected
-	m := Match{
-		initRating:    DefaultInitRating,
-		kFactor:       DefaultKFactor,
-		c:             DefaultC,
-		homeAdvantage: DefaultC,
-		maxChangePerc: 0,
-		maxChangeAbs:  0,
-		ObservedFunc:  &obs,
-		ExpectedFunc:  &exp,
-		UpdateFunc:    &up,
-	}
-	for _, o := range opts {
-		o(&m)
-	}
-	return m
-}
-
-func (m Match) NewRating() float64 {
-	return m.initRating
+	m.Expected = m.settings.Expected(m.Pt.Rating, m.PtOpp.Rating)
+	observed := m.settings.observed(m.score, m.scoreOpp)
+	return m.settings.update(m.Pt.Rating, observed, m.Expected)
 }
